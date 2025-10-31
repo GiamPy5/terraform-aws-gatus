@@ -78,6 +78,9 @@ module "rds" {
   identifier     = "${local.name}-rds"
   instance_class = "db.t4g.micro"
 
+  allocated_storage = 5
+  username = replace("${local.name}admin", "-", "")
+
   kms_key_id = module.kms.key_arn
 
   manage_master_user_password = true
