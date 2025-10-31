@@ -91,7 +91,7 @@ variable "security_config" {
     oidc = optional(object({
       issuer_url = string
       redirect_url = string
-      cient_id = string
+      client_id = string
       client_secret = string
       scopes = optional(list(string), ["openid"])
       allowed_subjects = optional(list(string), [])

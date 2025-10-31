@@ -4,140 +4,177 @@ import sys
 import time
 import json
 import re
+from urllib.parse import quote
+
 
 param_name = os.environ["GATUS_CONFIG_SSM_PARAM"]
 region = os.environ["AWS_REGION"]
 destination = "/config/user_config.yaml"
 
-storage_secret_arn = os.environ.get("STORAGE_SECRET_ARN")
-oidc_secret_arn = os.environ.get("OIDC_SECRET_ARN")
+storage_secret_ref = os.environ.get("STORAGE_SECRET")
+oidc_secret_ref = os.environ.get("OIDC_SECRET")
+
+PLACEHOLDER_PATTERN = re.compile(r"__FETCH_FROM_SECRET__\.([A-Za-z0-9_\-.]+)")
+
+
+def log(message):
+    sys.stdout.write(f"{message}\n")
+    sys.stdout.flush()
+
+
+def log_error(message):
+    sys.stderr.write(f"{message}\n")
+    sys.stderr.flush()
+
+
+def run_aws_cli(base_args, *, query=None):
+    command = ["aws", *base_args]
+    if query:
+        command.extend(["--query", query])
+    command.extend(["--output", "text", "--region", region, "--no-cli-pager"])
+    return subprocess.check_output(command, text=True)
 
 
 def fetch_ssm_parameter(name):
-    cli_command = [
-        "aws",
-        "ssm",
-        "get-parameter",
-        "--name",
-        name,
-        "--with-decryption",
-        "--query",
-        "Parameter.Value",
-        "--output",
-        "text",
-        "--region",
-        region,
-        "--no-cli-pager",
-    ]
-    return subprocess.check_output(cli_command, text=True)
+    return run_aws_cli(
+        ["ssm", "get-parameter", "--name", name, "--with-decryption"],
+        query="Parameter.Value",
+    )
 
 
-def fetch_secret(arn):
-    cli_command = [
-        "aws",
-        "secretsmanager",
-        "get-secret-value",
-        "--secret-id",
-        arn,
-        "--query",
-        "SecretString",
-        "--output",
-        "text",
-        "--region",
-        region,
-        "--no-cli-pager",
-    ]
-    output = subprocess.check_output(cli_command, text=True)
-    try:
-        return json.loads(output)
-    except json.JSONDecodeError:
-        return {"value": output}
+class SecretCache:
+    def __init__(self, sources):
+        self._sources = sources
+        self._cache = {}
+
+    def get(self, prefix):
+        ref = (self._sources.get(prefix) or "").strip()
+
+        if not ref:
+            log_error(
+                f"⚠️  No secret provided for '{prefix}' placeholders; update task definition."
+            )
+            return None
+
+        if prefix in self._cache:
+            return self._cache[prefix]
+
+        parsed = ref
+        if ref.startswith("{") or ref.startswith("["):
+            try:
+                parsed = json.loads(ref)
+            except json.JSONDecodeError:
+                parsed = ref
+
+        if isinstance(parsed, dict):
+            secret_data = parsed
+        else:
+            secret_data = {"value": str(parsed)}
+
+        log(f"Using inline {prefix} secret value from ECS environment")
+        self._cache[prefix] = secret_data
+        return secret_data
 
 
-def replace_placeholders(config_str):
+def replace_placeholders(config_str, secret_cache):
     """Replaces __FETCH_FROM_SECRET__.something placeholders using appropriate secrets."""
-    pattern = re.compile(r"__FETCH_FROM_SECRET__\.([A-Za-z0-9_\-\.]+)")
-    matches = pattern.findall(config_str)
+    matches = PLACEHOLDER_PATTERN.findall(config_str)
 
     if not matches:
-        return config_str
+        return config_str, []
 
-    sys.stdout.write(
-        f"Detected {len(matches)} placeholders, fetching secrets as needed...\n"
-    )
-    sys.stdout.flush()
+    log(f"Detected {len(matches)} placeholders, fetching secrets as needed...")
 
-    # Lazy-fetch secrets only when needed
-    cached_secrets = {}
+    resolved_placeholders = []
 
     for key_path in matches:
-        # Determine which secret to use
-        if key_path.startswith("storage.") and storage_secret_arn:
-            secret_arn = storage_secret_arn
-            secret_name = "storage"
-        elif key_path.startswith("oidc.") and oidc_secret_arn:
-            secret_arn = oidc_secret_arn
-            secret_name = "oidc"
-        else:
-            sys.stderr.write(f"⚠️  No secret ARN configured for key '{key_path}'\n")
+        prefix, *nested_keys = key_path.split(".")
+
+        if not nested_keys:
+            log_error(
+                f"⚠️  Placeholder '{key_path}' is missing a key name after the prefix"
+            )
             continue
 
-        # Fetch secret if not already fetched
-        if secret_arn not in cached_secrets:
-            sys.stdout.write(f"Fetching {secret_name} secret from {secret_arn}\n")
-            sys.stdout.flush()
-            cached_secrets[secret_arn] = fetch_secret(secret_arn)
+        secret_data = secret_cache.get(prefix)
 
-        secret_data = cached_secrets[secret_arn]
+        if secret_data is None:
+            continue
 
-        # Extract nested key, e.g. oidc.client-id → client-id
-        parts = key_path.split(".")[1:]  # remove the prefix (storage/oidc)
-        secret_key = parts[-1]
         value = secret_data
-        for part in parts[1:]:  # allow deeper nesting
+        for part in nested_keys:
             if isinstance(value, dict):
                 value = value.get(part)
             else:
                 value = None
                 break
 
-        if value is not None:
-            placeholder = f"__FETCH_FROM_SECRET__.{key_path}"
-            config_str = config_str.replace(placeholder, str(value))
-            sys.stdout.write(f"→ Replaced {placeholder} with secret value.\n")
-        else:
-            sys.stderr.write(f"⚠️  Key '{key_path}' not found in secret {secret_arn}\n")
+        if value is None:
+            log_error(
+                f"⚠️  Key '{key_path}' not found in {prefix} secret (inline value)"
+            )
+            continue
 
-    return config_str
+        transformed_value = transform_secret_value(prefix, nested_keys, value)
 
+        placeholder = f"__FETCH_FROM_SECRET__.{key_path}"
+        config_str = config_str.replace(placeholder, transformed_value)
+        log(f"→ Resolved {placeholder} via {prefix} inline secret")
+        resolved_placeholders.append(key_path)
+
+    return config_str, resolved_placeholders
+
+
+def transform_secret_value(prefix, nested_keys, value):
+    text = str(value)
+    if prefix == "storage" and nested_keys:
+        field = nested_keys[-1]
+        if field in {"username", "password"}:
+            # Ensure credentials remain URL-safe inside Postgres DSN
+            return quote(text, safe="")
+    return text
+
+
+secret_cache = SecretCache({"storage": storage_secret_ref, "oidc": oidc_secret_ref})
 
 backoffs = [0, 2, 4, 8, 16]
 
 for attempt, delay in enumerate(backoffs, start=1):
     try:
-        sys.stdout.write(f"Fetching Gatus config from SSM (attempt {attempt})...\n")
-        sys.stdout.flush()
+        log(f"Fetching Gatus config from SSM (attempt {attempt})...")
         config_str = fetch_ssm_parameter(param_name)
+        log(
+            f"Retrieved config from SSM parameter {param_name} "
+            f"({len(config_str.splitlines())} lines)"
+        )
 
-        config_str = replace_placeholders(config_str)
+        config_str, resolved = replace_placeholders(config_str, secret_cache)
 
         with open(destination, "w", encoding="utf-8") as fh:
             fh.write(config_str)
 
-        sys.stdout.write(f"✅ Final config written to {destination}\n")
-        sys.stdout.flush()
+        if resolved:
+            log(
+                "Resolved placeholders: "
+                + ", ".join(sorted({f"{path}" for path in resolved}))
+            )
+        else:
+            log("No placeholder replacements required.")
+
+        log(
+            f"✅ Final config written to {destination} "
+            f"(placeholders resolved: {len(resolved)})"
+        )
         sys.exit(0)
 
     except subprocess.CalledProcessError as exc:
-        sys.stderr.write(
-            f"Fetch failed (attempt {attempt}): {exc}. Retrying after {delay} seconds...\n"
+        log_error(
+            f"Fetch failed (attempt {attempt}): {exc}. Retrying after {delay} seconds..."
         )
-        sys.stderr.flush()
         time.sleep(delay)
     except Exception as e:
-        sys.stderr.write(f"Unexpected error: {e}\n")
-        sys.stderr.flush()
+        log_error(f"Unexpected error: {e}")
         time.sleep(delay)
 
-sys.stderr.write("Failed to fetch config after retries\n")
+log_error("Failed to fetch config after retries")
 sys.exit(1)

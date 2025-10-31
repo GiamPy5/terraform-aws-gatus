@@ -6,8 +6,8 @@ locals {
   alb_target_group_arn          = var.create_alb ? module.alb-integration[0].target_group_arn : var.alb.target_group_arn
   ecs_cluster_arn               = var.create_ecs_cluster ? module.ecs-cluster[0].arn : var.ecs.cluster_arn
 
-  postgres_password_resolved = var.postgres_secret_arn != "" ? "__FETCH_FROM_SECRET__.storage.password" : var.postgres_password
-  postgres_username_resolved = var.postgres_secret_arn != "" ? "__FETCH_FROM_SECRET__.storage.username" : var.postgres_username
+  postgres_password_resolved = var.storage_secret_arn != "" ? "__FETCH_FROM_SECRET__.storage.password" : var.postgres_password
+  postgres_username_resolved = var.storage_secret_arn != "" ? "__FETCH_FROM_SECRET__.storage.username" : var.postgres_username
 
   storage_config = {
     postgres = {

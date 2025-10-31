@@ -106,16 +106,16 @@ module "ecs_service" {
       secrets = coalesce(flatten(concat(
         var.storage_secret_arn != "" ? [
           {
-            name      = "STORAGE_SECRET_ARN"
+            name      = "STORAGE_SECRET"
             valueFrom = var.storage_secret_arn
           }
         ] : [],
         var.oidc_secret_arn != "" ? [
           {
-            name      = "OIDC_SECRET_ARN"
+            name      = "OIDC_SECRET"
             valueFrom = var.oidc_secret_arn
           }
-        ] : [],
+        ] : []
       )), [])
       image      = "public.ecr.aws/aws-cli/aws-cli:2.31.24"
       entrypoint = ["python3", "-c"]
@@ -173,7 +173,7 @@ module "ecs_service" {
           value = var.gatus_config_path
         },
         {
-          name  = "GATUS_DEPLOYMENT_TRIGGER",
+          name  = "GATUS_DEPLOYMENT_TRIGGER"
           value = var.gatus_deployment_trigger_value
         }
       ]
