@@ -1,31 +1,37 @@
 variable "create_alb" {
-  type    = bool
-  default = true
+  description = "Controls whether this module provisions the accompanying Application Load Balancer integration."
+  type        = bool
+  default     = true
 }
 
 variable "create_ecs_service" {
-  type    = bool
-  default = true
+  description = "Controls whether the ECS service resources are created."
+  type        = bool
+  default     = true
 }
 
 variable "create_ecs_cluster" {
-  type    = bool
-  default = true
+  description = "Controls whether a new ECS cluster is created instead of using an existing one."
+  type        = bool
+  default     = true
 }
 
 variable "name" {
-  type    = string
-  default = "terraform-aws-gatus-ecs"
+  description = "Base name used when generating resource names."
+  type        = string
+  default     = "terraform-aws-gatus-ecs"
 }
 
 variable "kms_key_arn" {
-  type    = string
-  default = ""
+  description = "ARN of the KMS key used to encrypt the generated Gatus configuration parameter."
+  type        = string
+  default     = ""
 }
 
 variable "storage_type" {
-  type    = string
-  default = "memory"
+  description = "Type of storage backend to configure in the Gatus deployment."
+  type        = string
+  default     = "memory"
   validation {
     condition     = contains(["memory", "sqlite", "postgres"], var.storage_type)
     error_message = "storage_type must be either sqlite, postgres or memory"
@@ -33,49 +39,58 @@ variable "storage_type" {
 }
 
 variable "additional_config" {
-  type    = string
-  default = ""
+  description = "Additional YAML configuration to merge into the rendered Gatus configuration."
+  type        = string
+  default     = ""
 }
 
 variable "postgres_port" {
-  type    = number
-  default = 5432
+  description = "Port number used when building the Postgres connection string."
+  type        = number
+  default     = 5432
 }
 
 variable "postgres_db_name" {
-  type    = string
-  default = ""
+  description = "Database name included in the Postgres connection string."
+  type        = string
+  default     = ""
 }
 
 variable "postgres_address" {
-  type    = string
-  default = ""
+  description = "Hostname or endpoint used to reach the Postgres instance."
+  type        = string
+  default     = ""
 }
 
 variable "postgres_username" {
-  type    = string
-  default = ""
+  description = "Username included in the Postgres connection string."
+  type        = string
+  default     = ""
 }
 
 variable "postgres_password" {
-  type      = string
-  default   = ""
-  sensitive = true
+  description = "Password included in the Postgres connection string."
+  type        = string
+  default     = ""
+  sensitive   = true
 }
 
 variable "postgres_secret_arn" {
-  type    = string
-  default = ""
+  description = "ARN of a Secrets Manager secret that stores Postgres credentials."
+  type        = string
+  default     = ""
 }
 
 variable "sqlite_path" {
-  type    = string
-  default = "/data/gatus.db"
+  description = "Path inside the container for the SQLite database file."
+  type        = string
+  default     = "/data/gatus.db"
 }
 
 variable "security_type" {
-  type    = string
-  default = ""
+  description = "Authentication mode for the Gatus instance: basic, oidc, or left empty for none."
+  type        = string
+  default     = ""
   validation {
     condition     = var.security_type == "" || contains(["basic", "oidc"], var.security_type)
     error_message = "security_type must be either empty, basic or oidc"
@@ -83,6 +98,7 @@ variable "security_type" {
 }
 
 variable "security_config" {
+  description = "Security configuration values that accompany the selected security_type."
   type = object({
     basic = optional(object({
       username               = string
@@ -102,6 +118,7 @@ variable "security_config" {
 }
 
 variable "alb" {
+  description = "Configuration for an existing ALB integration when create_alb is false."
   type = object({
     public_subnets      = list(string)
     backend_port        = optional(number, 8080)
@@ -112,6 +129,7 @@ variable "alb" {
 }
 
 variable "ecs" {
+  description = "Inputs for the ECS service, including network configuration and optional cluster ARN."
   type = object({
     cluster_arn               = optional(string, "")
     cpu                       = optional(number, 2048)
@@ -122,6 +140,7 @@ variable "ecs" {
 }
 
 variable "gatus" {
+  description = "Configuration for the Gatus service, including version and configuration source."
   type = object({
     version                  = optional(string, "v5.29.0")
     config_ssm_parameter_arn = optional(string, "")
@@ -131,21 +150,25 @@ variable "gatus" {
 }
 
 variable "tags" {
-  type    = map(any)
-  default = {}
+  description = "Tags applied to all supported resources."
+  type        = map(any)
+  default     = {}
 }
 
 variable "aws_region" {
-  type    = string
-  default = ""
+  description = "AWS region override used for providers and logging; defaults to the current region when empty."
+  type        = string
+  default     = ""
 }
 
 variable "oidc_secret_arn" {
-  type    = string
-  default = ""
+  description = "ARN of the Secrets Manager secret that stores OIDC authentication values."
+  type        = string
+  default     = ""
 }
 
 variable "storage_secret_arn" {
-  type    = string
-  default = ""
+  description = "ARN of the Secrets Manager secret containing storage credentials for Postgres or other backends."
+  type        = string
+  default     = ""
 }

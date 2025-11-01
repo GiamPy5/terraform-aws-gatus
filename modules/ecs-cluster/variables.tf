@@ -1,9 +1,11 @@
 variable "name" {
-  type = string
+  description = "Name assigned to the ECS cluster."
+  type        = string
 }
 
 variable "default_capacity_provider_strategy" {
-  type = any
+  description = "Default capacity provider strategy map applied to the ECS cluster."
+  type        = any
   default = {
     FARGATE = {
       weight = 50

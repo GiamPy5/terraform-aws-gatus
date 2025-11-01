@@ -25,8 +25,8 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_default_capacity_provider_strategy"></a> [default\_capacity\_provider\_strategy](#input\_default\_capacity\_provider\_strategy) | n/a | `any` | <pre>{<br/>  "FARGATE": {<br/>    "base": 20,<br/>    "weight": 50<br/>  },<br/>  "FARGATE_SPOT": {<br/>    "weight": 50<br/>  }<br/>}</pre> | no |
-| <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
+| <a name="input_default_capacity_provider_strategy"></a> [default\_capacity\_provider\_strategy](#input\_default\_capacity\_provider\_strategy) | Default capacity provider strategy map applied to the ECS cluster. | `any` | <pre>{<br/>  "FARGATE": {<br/>    "base": 20,<br/>    "weight": 50<br/>  },<br/>  "FARGATE_SPOT": {<br/>    "weight": 50<br/>  }<br/>}</pre> | no |
+| <a name="input_name"></a> [name](#input\_name) | Name assigned to the ECS cluster. | `string` | n/a | yes |
 
 ## Outputs
 
