@@ -46,8 +46,8 @@ module "gatus" {
     config = file("${path.root}/config.yaml")
   }
 
-  postgres_address = module.rds.db_instance_address
-  postgres_db_name = local.db_name
+  postgres_address   = module.rds.db_instance_address
+  postgres_db_name   = local.db_name
   storage_secret_arn = module.rds.db_instance_master_user_secret_arn
 
   storage_type = "postgres"
@@ -79,7 +79,7 @@ module "rds" {
   instance_class = "db.t4g.micro"
 
   allocated_storage = 5
-  username = replace("${local.name}admin", "-", "")
+  username          = replace("${local.name}admin", "-", "")
 
   kms_key_id = module.kms.key_arn
 

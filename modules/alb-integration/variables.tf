@@ -20,6 +20,6 @@ variable "target_group_port" {
 }
 
 variable "acm_certificate_arn" {
-  type = string
+  type    = string
   default = ""
 }

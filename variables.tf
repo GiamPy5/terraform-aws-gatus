@@ -74,7 +74,7 @@ variable "sqlite_path" {
 }
 
 variable "security_type" {
-  type = string
+  type    = string
   default = ""
   validation {
     condition     = var.security_type == "" || contains(["basic", "oidc"], var.security_type)
@@ -85,17 +85,17 @@ variable "security_type" {
 variable "security_config" {
   type = object({
     basic = optional(object({
-      username = string
+      username               = string
       password_bcrypt_base64 = string
     }))
     oidc = optional(object({
-      issuer_url = string
-      redirect_url = string
-      client_id = string
-      client_secret = string
-      scopes = optional(list(string), ["openid"])
+      issuer_url       = string
+      redirect_url     = string
+      client_id        = string
+      client_secret    = string
+      scopes           = optional(list(string), ["openid"])
       allowed_subjects = optional(list(string), [])
-      session_ttl = optional(string, "8h")
+      session_ttl      = optional(string, "8h")
     }))
   })
   default = {}
