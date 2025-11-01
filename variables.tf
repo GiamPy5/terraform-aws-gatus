@@ -15,7 +15,7 @@ variable "create_ecs_cluster" {
 
 variable "name" {
   type    = string
-  default = "terraform-aws-gatus"
+  default = "terraform-aws-gatus-ecs"
 }
 
 variable "kms_key_arn" {

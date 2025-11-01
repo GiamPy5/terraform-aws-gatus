@@ -1,8 +1,8 @@
-# terraform-aws-gatus
+# terraform-aws-gatus-ecs
 
 [![Terraform](https://img.shields.io/badge/Terraform-%3E%3D%201.4-623CE4?logo=terraform)](https://www.terraform.io/)
 [![AWS Provider](https://img.shields.io/badge/AWS%20Provider-~%3E%206.0-FF9900?logo=amazon-aws)](https://registry.terraform.io/providers/hashicorp/aws/latest)
-[![License](https://img.shields.io/github/license/GiamPy5/terraform-aws-gatus)](LICENSE)
+[![License](https://img.shields.io/github/license/GiamPy5/terraform-aws-gatus-ecs)](LICENSE)
 
 Terraform module that deploys [Gatus](https://github.com/TwiN/gatus) on AWS Fargate with optional Application Load Balancer integration, freshly provisioned ECS infrastructure, and secret-aware configuration delivery via AWS Systems Manager Parameter Store and Secrets Manager.
 
@@ -81,7 +81,7 @@ provider "aws" {
 }
 
 module "gatus" {
-  source = "github.com/GiamPy5/terraform-aws-gatus"
+  source = "github.com/GiamPy5/terraform-aws-gatus-ecs"
 
   name = "prod-gatus"
 
@@ -148,7 +148,7 @@ See `examples/complete` for a full environment that provisions networking, RDS, 
 
 | Variable | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | `string` | `"terraform-aws-gatus"` | Base name applied to created resources. |
+| `name` | `string` | `"terraform-aws-gatus-ecs"` | Base name applied to created resources. |
 | `create_alb` / `create_ecs_cluster` / `create_ecs_service` | `bool` | `true` | Control which submodules are created. |
 | `alb` | `object` | n/a | Required networking inputs when creating an ALB (public subnets, VPC, etc.). |
 | `ecs` | `object` | n/a | ECS service inputs (subnets, task sizing, optional existing cluster/security group). |
