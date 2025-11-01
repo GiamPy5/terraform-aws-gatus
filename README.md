@@ -144,26 +144,12 @@ See `examples/complete` for a full environment that provisions networking, RDS, 
 > ⚠️ **Sensitive data**  
 > Prefer submitting credentials through Secrets Manager ARNs (`storage_secret_arn`, `oidc_secret_arn`) instead of plaintext Terraform variables. This keeps secrets out of state files, version control, and CLI history.
 
-## Inputs (highlights)
+---
 
-| Variable | Type | Default | Description |
-| --- | --- | --- | --- |
-| `name` | `string` | `"terraform-aws-gatus-ecs"` | Base name applied to created resources. |
-| `create_alb` / `create_ecs_cluster` / `create_ecs_service` | `bool` | `true` | Control which submodules are created. |
-| `alb` | `object` | n/a | Required networking inputs when creating an ALB (public subnets, VPC, etc.). |
-| `ecs` | `object` | n/a | ECS service inputs (subnets, task sizing, optional existing cluster/security group). |
-| `gatus` | `object` | n/a | Gatus runtime settings (version, config payload, optional SSM parameter ARN). |
-| `storage_type` | `string` | `"memory"` | Backend selection (`memory`, `sqlite`, `postgres`). |
-| `security_type` | `string` | `""` | Enable `basic` or `oidc` auth using `security_config`. |
-| `storage_secret_arn` / `oidc_secret_arn` | `string` | `""` | Secrets Manager ARNs used by the loader to fill placeholders. |
-| `kms_key_arn` | `string` | `""` | Optional KMS key for SSM parameter and task permissions. |
+<!-- BEGIN_TF_DOCS -->
+<!-- END_TF_DOCS -->
 
-Refer to `variables.tf` for the full list with default values and validation rules.
-
-## Outputs
-
-- `load_balancer_dns_name` – ALB DNS name when the module creates the load balancer.
-- Sub-module specific outputs (e.g., target group ARN, security group ID) are exposed through the nested modules.
+---
 
 ## Operations
 
