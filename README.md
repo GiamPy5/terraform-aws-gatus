@@ -176,29 +176,29 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_additional_config"></a> [additional\_config](#input\_additional\_config) | n/a | `string` | `""` | no |
-| <a name="input_alb"></a> [alb](#input\_alb) | n/a | <pre>object({<br/>    public_subnets      = list(string)<br/>    backend_port        = optional(number, 8080)<br/>    acm_certificate_arn = optional(string, "")<br/>    vpc_cidr_block      = string<br/>    vpc_id              = string<br/>  })</pre> | n/a | yes |
-| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `""` | no |
-| <a name="input_create_alb"></a> [create\_alb](#input\_create\_alb) | n/a | `bool` | `true` | no |
-| <a name="input_create_ecs_cluster"></a> [create\_ecs\_cluster](#input\_create\_ecs\_cluster) | n/a | `bool` | `true` | no |
-| <a name="input_create_ecs_service"></a> [create\_ecs\_service](#input\_create\_ecs\_service) | n/a | `bool` | `true` | no |
-| <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br/>    cluster_arn               = optional(string, "")<br/>    cpu                       = optional(number, 2048)<br/>    memory                    = optional(number, 4096)<br/>    subnet_ids                = list(string)<br/>    ingress_security_group_id = optional(string, "")<br/>  })</pre> | n/a | yes |
-| <a name="input_gatus"></a> [gatus](#input\_gatus) | n/a | <pre>object({<br/>    version                  = optional(string, "v5.29.0")<br/>    config_ssm_parameter_arn = optional(string, "")<br/>    deployment_trigger_value = optional(string, "")<br/>    config                   = string<br/>  })</pre> | n/a | yes |
-| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | n/a | `string` | `""` | no |
-| <a name="input_name"></a> [name](#input\_name) | n/a | `string` | `"terraform-aws-gatus-ecs"` | no |
-| <a name="input_oidc_secret_arn"></a> [oidc\_secret\_arn](#input\_oidc\_secret\_arn) | n/a | `string` | `""` | no |
-| <a name="input_postgres_address"></a> [postgres\_address](#input\_postgres\_address) | n/a | `string` | `""` | no |
-| <a name="input_postgres_db_name"></a> [postgres\_db\_name](#input\_postgres\_db\_name) | n/a | `string` | `""` | no |
-| <a name="input_postgres_password"></a> [postgres\_password](#input\_postgres\_password) | n/a | `string` | `""` | no |
-| <a name="input_postgres_port"></a> [postgres\_port](#input\_postgres\_port) | n/a | `number` | `5432` | no |
-| <a name="input_postgres_secret_arn"></a> [postgres\_secret\_arn](#input\_postgres\_secret\_arn) | n/a | `string` | `""` | no |
-| <a name="input_postgres_username"></a> [postgres\_username](#input\_postgres\_username) | n/a | `string` | `""` | no |
-| <a name="input_security_config"></a> [security\_config](#input\_security\_config) | n/a | <pre>object({<br/>    basic = optional(object({<br/>      username               = string<br/>      password_bcrypt_base64 = string<br/>    }))<br/>    oidc = optional(object({<br/>      issuer_url       = string<br/>      redirect_url     = string<br/>      client_id        = string<br/>      client_secret    = string<br/>      scopes           = optional(list(string), ["openid"])<br/>      allowed_subjects = optional(list(string), [])<br/>      session_ttl      = optional(string, "8h")<br/>    }))<br/>  })</pre> | `{}` | no |
-| <a name="input_security_type"></a> [security\_type](#input\_security\_type) | n/a | `string` | `""` | no |
-| <a name="input_sqlite_path"></a> [sqlite\_path](#input\_sqlite\_path) | n/a | `string` | `"/data/gatus.db"` | no |
-| <a name="input_storage_secret_arn"></a> [storage\_secret\_arn](#input\_storage\_secret\_arn) | n/a | `string` | `""` | no |
-| <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | n/a | `string` | `"memory"` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | `{}` | no |
+| <a name="input_additional_config"></a> [additional\_config](#input\_additional\_config) | Additional YAML configuration to merge into the rendered Gatus configuration. | `string` | `""` | no |
+| <a name="input_alb"></a> [alb](#input\_alb) | Configuration for an existing ALB integration when create\_alb is false. | <pre>object({<br/>    public_subnets      = list(string)<br/>    backend_port        = optional(number, 8080)<br/>    acm_certificate_arn = optional(string, "")<br/>    vpc_cidr_block      = string<br/>    vpc_id              = string<br/>  })</pre> | n/a | yes |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region override used for providers and logging; defaults to the current region when empty. | `string` | `""` | no |
+| <a name="input_create_alb"></a> [create\_alb](#input\_create\_alb) | Controls whether this module provisions the accompanying Application Load Balancer integration. | `bool` | `true` | no |
+| <a name="input_create_ecs_cluster"></a> [create\_ecs\_cluster](#input\_create\_ecs\_cluster) | Controls whether a new ECS cluster is created instead of using an existing one. | `bool` | `true` | no |
+| <a name="input_create_ecs_service"></a> [create\_ecs\_service](#input\_create\_ecs\_service) | Controls whether the ECS service resources are created. | `bool` | `true` | no |
+| <a name="input_ecs"></a> [ecs](#input\_ecs) | Inputs for the ECS service, including network configuration and optional cluster ARN. | <pre>object({<br/>    cluster_arn               = optional(string, "")<br/>    cpu                       = optional(number, 2048)<br/>    memory                    = optional(number, 4096)<br/>    subnet_ids                = list(string)<br/>    ingress_security_group_id = optional(string, "")<br/>  })</pre> | n/a | yes |
+| <a name="input_gatus"></a> [gatus](#input\_gatus) | Configuration for the Gatus service, including version and configuration source. | <pre>object({<br/>    version                  = optional(string, "v5.29.0")<br/>    config_ssm_parameter_arn = optional(string, "")<br/>    deployment_trigger_value = optional(string, "")<br/>    config                   = string<br/>  })</pre> | n/a | yes |
+| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | ARN of the KMS key used to encrypt the generated Gatus configuration parameter. | `string` | `""` | no |
+| <a name="input_name"></a> [name](#input\_name) | Base name used when generating resource names. | `string` | `"terraform-aws-gatus-ecs"` | no |
+| <a name="input_oidc_secret_arn"></a> [oidc\_secret\_arn](#input\_oidc\_secret\_arn) | ARN of the Secrets Manager secret that stores OIDC authentication values. | `string` | `""` | no |
+| <a name="input_postgres_address"></a> [postgres\_address](#input\_postgres\_address) | Hostname or endpoint used to reach the Postgres instance. | `string` | `""` | no |
+| <a name="input_postgres_db_name"></a> [postgres\_db\_name](#input\_postgres\_db\_name) | Database name included in the Postgres connection string. | `string` | `""` | no |
+| <a name="input_postgres_password"></a> [postgres\_password](#input\_postgres\_password) | Password included in the Postgres connection string. | `string` | `""` | no |
+| <a name="input_postgres_port"></a> [postgres\_port](#input\_postgres\_port) | Port number used when building the Postgres connection string. | `number` | `5432` | no |
+| <a name="input_postgres_secret_arn"></a> [postgres\_secret\_arn](#input\_postgres\_secret\_arn) | ARN of a Secrets Manager secret that stores Postgres credentials. | `string` | `""` | no |
+| <a name="input_postgres_username"></a> [postgres\_username](#input\_postgres\_username) | Username included in the Postgres connection string. | `string` | `""` | no |
+| <a name="input_security_config"></a> [security\_config](#input\_security\_config) | Security configuration values that accompany the selected security\_type. | <pre>object({<br/>    basic = optional(object({<br/>      username               = string<br/>      password_bcrypt_base64 = string<br/>    }))<br/>    oidc = optional(object({<br/>      issuer_url       = string<br/>      redirect_url     = string<br/>      client_id        = string<br/>      client_secret    = string<br/>      scopes           = optional(list(string), ["openid"])<br/>      allowed_subjects = optional(list(string), [])<br/>      session_ttl      = optional(string, "8h")<br/>    }))<br/>  })</pre> | `{}` | no |
+| <a name="input_security_type"></a> [security\_type](#input\_security\_type) | Authentication mode for the Gatus instance: basic, oidc, or left empty for none. | `string` | `""` | no |
+| <a name="input_sqlite_path"></a> [sqlite\_path](#input\_sqlite\_path) | Path inside the container for the SQLite database file. | `string` | `"/data/gatus.db"` | no |
+| <a name="input_storage_secret_arn"></a> [storage\_secret\_arn](#input\_storage\_secret\_arn) | ARN of the Secrets Manager secret containing storage credentials for Postgres or other backends. | `string` | `""` | no |
+| <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | Type of storage backend to configure in the Gatus deployment. | `string` | `"memory"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags applied to all supported resources. | `map(any)` | `{}` | no |
 
 ## Outputs
 

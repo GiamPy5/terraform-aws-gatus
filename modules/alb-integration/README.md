@@ -25,12 +25,12 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_acm_certificate_arn"></a> [acm\_certificate\_arn](#input\_acm\_certificate\_arn) | n/a | `string` | `""` | no |
-| <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
-| <a name="input_public_subnets"></a> [public\_subnets](#input\_public\_subnets) | n/a | `list(string)` | n/a | yes |
-| <a name="input_target_group_port"></a> [target\_group\_port](#input\_target\_group\_port) | n/a | `number` | `8080` | no |
-| <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | n/a | `string` | n/a | yes |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | n/a | `string` | n/a | yes |
+| <a name="input_acm_certificate_arn"></a> [acm\_certificate\_arn](#input\_acm\_certificate\_arn) | ARN of the ACM certificate for enabling HTTPS listeners; leave blank to disable HTTPS. | `string` | `""` | no |
+| <a name="input_name"></a> [name](#input\_name) | Base name applied to ALB resources created by this module. | `string` | n/a | yes |
+| <a name="input_public_subnets"></a> [public\_subnets](#input\_public\_subnets) | List of public subnet IDs where the ALB is deployed. | `list(string)` | n/a | yes |
+| <a name="input_target_group_port"></a> [target\_group\_port](#input\_target\_group\_port) | Port on which the target group forwards traffic to the ECS service. | `number` | `8080` | no |
+| <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | CIDR block of the VPC used to configure ALB security group egress. | `string` | n/a | yes |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | ID of the VPC that hosts the Application Load Balancer. | `string` | n/a | yes |
 
 ## Outputs
 

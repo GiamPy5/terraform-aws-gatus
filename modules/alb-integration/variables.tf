@@ -1,25 +1,31 @@
 variable "vpc_id" {
-  type = string
+  description = "ID of the VPC that hosts the Application Load Balancer."
+  type        = string
 }
 
 variable "name" {
-  type = string
+  description = "Base name applied to ALB resources created by this module."
+  type        = string
 }
 
 variable "public_subnets" {
-  type = list(string)
+  description = "List of public subnet IDs where the ALB is deployed."
+  type        = list(string)
 }
 
 variable "vpc_cidr_block" {
-  type = string
+  description = "CIDR block of the VPC used to configure ALB security group egress."
+  type        = string
 }
 
 variable "target_group_port" {
-  type    = number
-  default = 8080
+  description = "Port on which the target group forwards traffic to the ECS service."
+  type        = number
+  default     = 8080
 }
 
 variable "acm_certificate_arn" {
-  type    = string
-  default = ""
+  description = "ARN of the ACM certificate for enabling HTTPS listeners; leave blank to disable HTTPS."
+  type        = string
+  default     = ""
 }
