@@ -42,3 +42,7 @@ No resources.
 <!-- END_TF_DOCS -->
 
 ---
+
+## License
+
+Apache-2.0 Licensed. See [LICENSE](https://github.com/GiamPy5/terraform-aws-gatus-ecs/blob/main/LICENSE).
