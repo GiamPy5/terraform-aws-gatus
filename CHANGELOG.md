@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1](https://github.com/GiamPy5/terraform-aws-gatus-ecs/compare/v0.2.0...v0.2.1) (2025-11-01)
+
+
+### Bug Fixes
+
+* improves variable documentation ([#4](https://github.com/GiamPy5/terraform-aws-gatus-ecs/issues/4)) ([66c2d54](https://github.com/GiamPy5/terraform-aws-gatus-ecs/commit/66c2d54c70a49530a55249faeaaffe3adcb36753))
+
 ## [0.2.0](https://github.com/GiamPy5/terraform-aws-gatus-ecs/compare/v0.1.0...v0.2.0) (2025-11-01)
 
 
